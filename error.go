@@ -2,12 +2,16 @@ package gengo
 
 import (
 	"fmt"
-	"go/format"
 	"strings"
+
+	"golang.org/x/tools/imports"
 )
 
 func FormatSource(src string) (string, error) {
-	output, err := format.Source([]byte(src))
+	output, err := imports.Process("", []byte(src), &imports.Options{
+		AllErrors: true,
+		Comments:  true,
+	})
 	if err != nil {
 		lines := strings.Split(src, "\n")
 		length := len(lines)
