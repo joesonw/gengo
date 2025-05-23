@@ -9,6 +9,7 @@ type Printer struct {
 	pkgPath GoImport
 	pkg     string
 	buffer  *bytes.Buffer
+	header  string
 
 	importsByPath  map[GoImport]string
 	importsByAlias map[string]GoImport
@@ -23,6 +24,14 @@ func New(pkgPath GoImport) *Printer {
 		importsByPath:  map[GoImport]string{},
 		importsByAlias: map[string]GoImport{},
 	}
+}
+
+func (p *Printer) SetPackage(pkg string) {
+	p.pkg = pkg
+}
+
+func (p *Printer) SetHeader(header string) {
+	p.header = header
 }
 
 func (p *Printer) Write(b []byte) (n int, err error) {
@@ -71,8 +80,13 @@ func (p *Printer) getImportAlias(path GoImport) string {
 
 func (p *Printer) Bytes() ([]byte, error) {
 	buf := bytes.NewBuffer(nil)
-	buf.WriteString("// Code generated. DO NOT EDIT.\n")
-	buf.WriteString("\n")
+	if p.header != "" {
+		buf.WriteString(p.header)
+		buf.WriteString("\n")
+	} else {
+		buf.WriteString("// Code generated. DO NOT EDIT.\n")
+		buf.WriteString("\n")
+	}
 	buf.WriteString("package " + p.pkg + "\n")
 	buf.WriteString("\n")
 	buf.WriteString("import (\n")
